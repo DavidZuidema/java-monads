@@ -5,14 +5,9 @@ import java.util.function.Function;
 /**
  * class Functor f => Applicative f
  */
-public interface Applicative<T> extends Functor<T> {
+public interface Applicative<A> extends Functor<A> {
 	/**
-	 * pure :: a -> f a
+	 * (<*>) :: f a -> f (a -> b) -> f b
 	 */
-	Applicative<T> lift(T t);
-
-	/**
-	 * (<*>) :: f (a -> b) -> f a -> f b
-	 */
-	<U> Applicative<U> seqApply(Applicative<Function<T, U>> f, Applicative<T> x);
+	<B> Applicative<B> seqApply(Applicative<Function<A, B>> f);
 }

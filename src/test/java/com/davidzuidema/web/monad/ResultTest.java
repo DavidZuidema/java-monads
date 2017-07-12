@@ -15,18 +15,19 @@ public class ResultTest {
 
 	Function<Integer, Integer> addOne = i -> i + 1;
 	Function<Integer, Integer> addThree = i -> i + 3;
+	Function<Result<Integer>, Result<Integer>> id = Function.identity();
 
 	@Test
 	public void result_shouldSatisfyTheFunctorLaw_identity() throws Exception {
 		Result<Integer> expectedResult = Result.of(1);
-		Result<Integer> mappedResult = expectedResult.map(Functor::id);
-		Result<Integer> idResult = Functor.id(expectedResult);
+		Result<Integer> idMappedResult = expectedResult.map(x -> x);
+		Result<Integer> idAppliedResult = id.apply(expectedResult);
 
-		assertThat(mappedResult, is(equalTo(idResult)));
+		assertThat(idMappedResult, is(equalTo(idAppliedResult)));
 	}
 
 	@Test
-	public void result_shouldSatisfyTheFunctorLaw_associativeComposition() throws Exception {
+	public void result_shouldSatisfyTheFunctorLaw_composition() throws Exception {
 		Result<Integer> result = Result.of(1);
 		Result<Integer> composingMaps = result.map(addOne).map(addThree);
 		Result<Integer> mappingComposition = result.map(addOne.compose(addThree));

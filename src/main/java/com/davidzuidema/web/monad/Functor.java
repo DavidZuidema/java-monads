@@ -7,11 +7,7 @@ import java.util.function.Function;
  */
 public interface Functor<A> {
 	/**
-	 * fmap :: (a -> b) -> f a -> f b
+	 * fmap :: f a -> (a -> b) -> f b
 	 */
 	public <B> Functor<B> map(Function<A, B> f);
-
-	static <T> T id(T t) {
-		return t;
-	}
 }
