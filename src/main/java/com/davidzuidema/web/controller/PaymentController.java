@@ -7,9 +7,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.davidzuidema.web.monad.Result;
+import com.davidzuidema.web.payment.PaymentDto;
 import com.davidzuidema.web.payment.PaymentService;
-import com.davidzuidema.web.payment.SinglePaymentRequest;
-import com.davidzuidema.web.payment.SinglePaymentResponse;
+import com.davidzuidema.web.payment.ScheduleSinglePaymentRequest;
 
 @RestController
 @RequestMapping("/payments")
@@ -20,7 +21,7 @@ public class PaymentController {
 
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public SinglePaymentResponse schedulePayment(@RequestBody SinglePaymentRequest request) {
+	public Result<PaymentDto> schedulePayment(@RequestBody ScheduleSinglePaymentRequest request) {
 		return paymentService.scheduleSinglePayment(request);
 	}
 

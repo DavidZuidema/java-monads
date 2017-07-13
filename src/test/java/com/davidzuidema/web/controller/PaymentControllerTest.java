@@ -12,9 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.davidzuidema.web.monad.Result;
+import com.davidzuidema.web.payment.PaymentDto;
 import com.davidzuidema.web.payment.PaymentService;
-import com.davidzuidema.web.payment.SinglePaymentRequest;
-import com.davidzuidema.web.payment.SinglePaymentResponse;
+import com.davidzuidema.web.payment.ScheduleSinglePaymentRequest;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PaymentControllerTest {
@@ -27,11 +28,11 @@ public class PaymentControllerTest {
 
 	@Test
 	public void schedulePayment() {
-		SinglePaymentRequest request = new SinglePaymentRequest();
-		SinglePaymentResponse response = new SinglePaymentResponse();
+		ScheduleSinglePaymentRequest request = new ScheduleSinglePaymentRequest();
+		Result<PaymentDto> response = Result.of(new PaymentDto());
 		when(paymentService.scheduleSinglePayment(request)).thenReturn(response);
 
-		SinglePaymentResponse actual = subject.schedulePayment(request);
+		Result<PaymentDto> actual = subject.schedulePayment(request);
 
 		verify(paymentService).scheduleSinglePayment(request);
 		assertThat(actual, is(notNullValue()));
