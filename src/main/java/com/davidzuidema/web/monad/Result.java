@@ -4,7 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Function;
 
-public final class Result<A> implements Functor<A> {
+public final class Result<A> {
 
 	private final A value;
 
@@ -20,16 +20,21 @@ public final class Result<A> implements Functor<A> {
 		return new Result<>(t);
 	}
 
-	public A get() {
+	public A extract() {
 		if (value == null) {
 			throw new NoSuchElementException("No value present");
 		}
 		return this.value;
 	}
 
-	@Override
 	public <B> Result<B> map(Function<A, B> f) {
+		Objects.requireNonNull(f);
 		return Result.of(f.apply(value));
+	}
+
+	public <B> Result<B> flatMap(Function<A, Result<B>> f) {
+		Objects.requireNonNull(f);
+		return f.apply(value);
 	}
 
 	@Override

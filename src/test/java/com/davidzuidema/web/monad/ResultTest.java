@@ -15,8 +15,15 @@ public class ResultTest {
 
 	Function<Integer, Integer> addOne = i -> i + 1;
 	Function<Integer, Integer> addThree = i -> i + 3;
+	Function<Integer, Result<Integer>> addOneM = i -> Result.of(i + 1);
 	Function<Result<Integer>, Result<Integer>> id = Function.identity();
 
+	/**
+	 * Functor Identity Law
+	 * 
+	 * haskell:
+	 * fmap id == id
+	 */
 	@Test
 	public void result_shouldSatisfyTheFunctorLaw_identity() throws Exception {
 		Result<Integer> expectedResult = Result.of(1);
@@ -26,6 +33,12 @@ public class ResultTest {
 		assertThat(idMappedResult, is(equalTo(idAppliedResult)));
 	}
 
+	/**
+	 * Functor Composition Law
+	 * 
+	 * haskell:
+	 * fmap (f . g) == fmap f . fmap g
+	 */
 	@Test
 	public void result_shouldSatisfyTheFunctorLaw_composition() throws Exception {
 		Result<Integer> result = Result.of(1);
