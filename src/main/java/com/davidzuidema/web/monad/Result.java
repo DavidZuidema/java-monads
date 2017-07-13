@@ -1,30 +1,44 @@
 package com.davidzuidema.web.monad;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Function;
 
 public final class Result<A> {
 
 	private final A value;
+	private final String error;
 
-	private Result() {
-		this.value = null;
+	private Result(A value, String error) {
+		this.value = value;
+		this.error = error;
 	}
 
-	private Result(A value) {
-		this.value = Objects.requireNonNull(value);
+	public static <T> Result<T> of(T value) {
+		Objects.requireNonNull(value);
+		return new Result<>(value, null);
 	}
 
-	public static <T> Result<T> of(T t) {
-		return new Result<>(t);
+	public static <T> Result<T> error(String message) {
+		Objects.requireNonNull(message);
+		return new Result<>(null, message);
+	}
+
+	public boolean isSuccess() {
+		return this.value == null;
 	}
 
 	public A extract() {
 		if (value == null) {
-			throw new NoSuchElementException("No value present");
+			throw new IllegalStateException("No value present");
 		}
 		return this.value;
+	}
+
+	public String error() {
+		if (error == null) {
+			throw new IllegalStateException("No error present");
+		}
+		return this.error;
 	}
 
 	public <B> Result<B> map(Function<A, B> f) {
