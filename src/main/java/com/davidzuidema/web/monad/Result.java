@@ -14,6 +14,10 @@ public final class Result<A> {
 	}
 
 	public static <T> Result<T> of(T value) {
+		return success(value);
+	}
+
+	public static <T> Result<T> success(T value) {
 		Objects.requireNonNull(value);
 		return new Result<>(value, null);
 	}
@@ -23,7 +27,11 @@ public final class Result<A> {
 		return new Result<>(null, message);
 	}
 
-	public boolean isSuccess() {
+	public boolean succeeded() {
+		return this.value != null;
+	}
+
+	public boolean failed() {
 		return this.value == null;
 	}
 
@@ -43,11 +51,17 @@ public final class Result<A> {
 
 	public <B> Result<B> map(Function<A, B> f) {
 		Objects.requireNonNull(f);
-		return Result.of(f.apply(value));
+		if (failed()) {
+			return error(error);
+		}
+		return success(f.apply(value));
 	}
 
 	public <B> Result<B> flatMap(Function<A, Result<B>> f) {
 		Objects.requireNonNull(f);
+		if (failed()) {
+			return error(error);
+		}
 		return f.apply(value);
 	}
 
@@ -62,6 +76,14 @@ public final class Result<A> {
 		}
 
 		Result<?> other = (Result<?>) obj;
+
+		if (other.succeeded() != succeeded()) {
+			return false;
+		}
+
+		if (failed()) {
+			Objects.equals(error, other.error);
+		}
 		return Objects.equals(value, other.value);
 	}
 
@@ -72,7 +94,7 @@ public final class Result<A> {
 
 	@Override
 	public String toString() {
-		return value != null ? String.format("Result[%s]", value) : "Result.empty";
+		return value != null ? String.format("Success[%s]", value) : String.format("Fail[%s]", error);
 	}
 
 }

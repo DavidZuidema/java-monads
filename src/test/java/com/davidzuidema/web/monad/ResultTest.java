@@ -3,15 +3,28 @@ package com.davidzuidema.web.monad;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResultTest {
+
+	@Mock
+	Function<Integer, Result<Integer>> firstM;
+
+	@Mock
+	Function<Integer, Result<Integer>> secondM;
+
+	@Mock
+	Function<Integer, Integer> second;
 
 	Function<Integer, Integer> addOne = i -> i + 1;
 	Function<Integer, Integer> addThree = i -> i + 3;
@@ -90,5 +103,96 @@ public class ResultTest {
 		Result<Integer> chainResult = m.flatMap(addOneM).flatMap(addThreeM);
 
 		assertThat(chainResult, is(equalTo(applyThenChainResult)));
+	}
+
+	@Test
+	public void succeeded_withValue_returnsTrue() throws Exception {
+		assertThat(Result.of(1).succeeded(), is(true));
+	}
+
+	@Test
+	public void succeeded_withError_returnsFalse() throws Exception {
+		assertThat(Result.error("divide by zero").succeeded(), is(false));
+	}
+
+	@Test
+	public void failed_withValue_returnsFalse() throws Exception {
+		assertThat(Result.of(1).failed(), is(false));
+	}
+
+	@Test
+	public void failed_withError_returnsTrue() throws Exception {
+		assertThat(Result.error("divide by zero").failed(), is(true));
+	}
+
+	@Test
+	public void extract_withValue_returnsValue() throws Exception {
+		assertThat(Result.of(1).extract(), is(1));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void extract_withError_throwsException() throws Exception {
+		Result.error("Data Access Violation").extract();
+	}
+
+	@Test
+	public void error_withError_returnsError() throws Exception {
+		assertThat(Result.error("Record Not Found").error(), is("Record Not Found"));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void error_withValue_throwsException() throws Exception {
+		Result.of("Data Access Violation").error();
+
+	}
+
+	@Test
+	public void flatMap_chainingSuccessfulOperations_appliesAllFunctions() throws Exception {
+		when(firstM.apply(1)).thenReturn(Result.of(2));
+		when(secondM.apply(2)).thenReturn(Result.of(3));
+
+		Result<Integer> end = Result.of(1).flatMap(firstM).flatMap(secondM);
+
+		verify(firstM).apply(1);
+		verify(secondM).apply(2);
+		assertThat(end.succeeded(), is(true));
+		assertThat(end.extract(), is(3));
+	}
+
+	@Test
+	public void flatMap_chainingUpstreamFailingOperations_doesNotApplyDownstreamFunctions() throws Exception {
+		when(firstM.apply(1)).thenReturn(Result.error("problem"));
+
+		Result<Integer> end = Result.of(1).flatMap(firstM).flatMap(secondM);
+
+		verify(firstM).apply(1);
+		verifyZeroInteractions(secondM);
+		assertThat(end.failed(), is(true));
+		assertThat(end.error(), is("problem"));
+	}
+
+	@Test
+	public void map_chainingSuccessfulOperations_appliesAllFunctions() throws Exception {
+		when(firstM.apply(1)).thenReturn(Result.of(2));
+		when(second.apply(2)).thenReturn(3);
+
+		Result<Integer> end = Result.of(1).flatMap(firstM).map(second);
+
+		verify(firstM).apply(1);
+		verify(second).apply(2);
+		assertThat(end.succeeded(), is(true));
+		assertThat(end.extract(), is(3));
+	}
+
+	@Test
+	public void map_chainingUpstreamFailingOperations_doesNotApplyDownstreamFunctions() throws Exception {
+		when(firstM.apply(1)).thenReturn(Result.error("problem"));
+
+		Result<Integer> end = Result.of(1).flatMap(firstM).map(second);
+
+		verify(firstM).apply(1);
+		verifyZeroInteractions(second);
+		assertThat(end.failed(), is(true));
+		assertThat(end.error(), is("problem"));
 	}
 }
