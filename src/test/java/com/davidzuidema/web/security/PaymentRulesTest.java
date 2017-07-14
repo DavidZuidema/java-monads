@@ -1,6 +1,8 @@
 package com.davidzuidema.web.security;
 
 import static com.davidzuidema.web.Util.create;
+import static com.davidzuidema.web.monad.ResultMatchers.failedAndError;
+import static com.davidzuidema.web.monad.ResultMatchers.succeededAndValue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -24,22 +26,20 @@ public class PaymentRulesTest {
 	}
 
 	@Test
-	public void canScheduleSinglePayment_withWrongCustomerId_returnsError() throws Exception {
+	public void hasAccess_withWrongCustomerId_returnsError() throws Exception {
 		ScheduleSinglePaymentRequest request = create(new ScheduleSinglePaymentRequest(), r -> r.setCustomerId("2"));
 
 		Result<ScheduleSinglePaymentRequest> result = PaymentRules.hasAccess(customer).apply(request);
 
-		assertThat(result.failed(), is(true));
-		assertThat(result.error(), is("Unauthorized Action"));
+		assertThat(result, failedAndError(is("Unauthorized Action")));
 	}
 
 	@Test
-	public void canScheduleSinglePayment_withMatchingCustomerId_returnsSuccess() throws Exception {
+	public void hasAccess_withMatchingCustomerId_returnsSuccess() throws Exception {
 		ScheduleSinglePaymentRequest request = create(new ScheduleSinglePaymentRequest(), r -> r.setCustomerId("1"));
 
 		Result<ScheduleSinglePaymentRequest> result = PaymentRules.hasAccess(customer).apply(request);
 
-		assertThat(result.succeeded(), is(true));
-		assertThat(result.extract(), is(sameInstance(request)));
+		assertThat(result, succeededAndValue(is(sameInstance(request))));
 	}
 }
