@@ -16,6 +16,7 @@ public class PaymentServiceImpl implements PaymentService {
 				.of(request)
 				.flatMap(Validate::bean)
 				.flatMap(PaymentRules.hasAccess(customer))
+				.flatMap(PaymentRules::isAfterFreeze)
 				.map(PaymentAdapter::toEntity)
 				.map(PaymentAdapter::fromEntity);
 	}
