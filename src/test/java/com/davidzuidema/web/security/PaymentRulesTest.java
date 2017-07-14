@@ -27,7 +27,7 @@ public class PaymentRulesTest {
 	public void canScheduleSinglePayment_withWrongCustomerId_returnsError() throws Exception {
 		ScheduleSinglePaymentRequest request = create(new ScheduleSinglePaymentRequest(), r -> r.setCustomerId("2"));
 
-		Result<ScheduleSinglePaymentRequest> result = PaymentRules.canScheduleSinglePayment(customer).apply(request);
+		Result<ScheduleSinglePaymentRequest> result = PaymentRules.hasAccess(customer).apply(request);
 
 		assertThat(result.failed(), is(true));
 		assertThat(result.error(), is("Unauthorized Action"));
@@ -37,7 +37,7 @@ public class PaymentRulesTest {
 	public void canScheduleSinglePayment_withMatchingCustomerId_returnsSuccess() throws Exception {
 		ScheduleSinglePaymentRequest request = create(new ScheduleSinglePaymentRequest(), r -> r.setCustomerId("1"));
 
-		Result<ScheduleSinglePaymentRequest> result = PaymentRules.canScheduleSinglePayment(customer).apply(request);
+		Result<ScheduleSinglePaymentRequest> result = PaymentRules.hasAccess(customer).apply(request);
 
 		assertThat(result.succeeded(), is(true));
 		assertThat(result.extract(), is(sameInstance(request)));

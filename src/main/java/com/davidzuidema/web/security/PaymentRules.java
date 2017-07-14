@@ -8,10 +8,10 @@ import com.davidzuidema.web.payment.ScheduleSinglePaymentRequest;
 public class PaymentRules {
 	/**
 	 * <pre>
-	 * User -> ScheduleSindlePaymentRequest -> Result&lt;ScheduleSinglePaymentRequest&gt;
+	 * User -> (ScheduleSindlePaymentRequest -> Result&lt;ScheduleSinglePaymentRequest&gt);
 	 * </pre>
 	 */
-	public static Function<ScheduleSinglePaymentRequest, Result<ScheduleSinglePaymentRequest>> canScheduleSinglePayment(
+	public static Function<ScheduleSinglePaymentRequest, Result<ScheduleSinglePaymentRequest>> hasAccess(
 			final Customer customer) {
 		return request -> request.getCustomerId().equals(customer.getId())
 				? Result.success(request)
