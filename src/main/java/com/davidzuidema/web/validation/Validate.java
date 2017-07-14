@@ -20,6 +20,11 @@ public class Validate {
 		validator = Validation.buildDefaultValidatorFactory().getValidator();
 	}
 
+	/**
+	 * Validates that bean property values satisfy the
+	 * restrictions declared by their JSR-303
+	 * javax.validation constraint annotations.
+	 */
 	public static <T> Result<T> bean(T t) {
 		List<String> errors = getErrors(t);
 		return errors.isEmpty() //
@@ -27,7 +32,7 @@ public class Validate {
 				: error(String.join(",", errors));
 	}
 
-	public static <T> List<String> getErrors(T t) {
+	private static <T> List<String> getErrors(T t) {
 		return validator.validate(t)//
 				.stream()//
 				.map(ConstraintViolation::getMessage)//
