@@ -30,11 +30,11 @@ public class PaymentControllerTest {
 	public void schedulePayment() {
 		ScheduleSinglePaymentRequest request = new ScheduleSinglePaymentRequest();
 		Result<PaymentDto> response = Result.of(new PaymentDto());
-		when(paymentService.scheduleSinglePayment(request)).thenReturn(response);
+		when(paymentService.scheduleSinglePayment(null, request)).thenReturn(response);
 
 		Result<PaymentDto> actual = subject.schedulePayment(request);
 
-		verify(paymentService).scheduleSinglePayment(request);
+		verify(paymentService).scheduleSinglePayment(null, request);
 		assertThat(actual, is(notNullValue()));
 	}
 

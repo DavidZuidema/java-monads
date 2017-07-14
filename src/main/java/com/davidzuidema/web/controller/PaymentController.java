@@ -22,7 +22,7 @@ public class PaymentController {
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
 	public Result<PaymentDto> schedulePayment(@RequestBody ScheduleSinglePaymentRequest request) {
-		return paymentService.scheduleSinglePayment(request);
+		return paymentService.scheduleSinglePayment(null, request);
 	}
 
 	@ResponseBody

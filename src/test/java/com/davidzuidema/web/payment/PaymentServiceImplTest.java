@@ -23,7 +23,7 @@ public class PaymentServiceImplTest {
 
 	@Test
 	public void scheduleSinglePayment() throws Exception {
-		subject.scheduleSinglePayment(new ScheduleSinglePaymentRequest());
+		subject.scheduleSinglePayment(null, new ScheduleSinglePaymentRequest());
 
 		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 		Set<ConstraintViolation<ScheduleSinglePaymentRequest>> results = validator
