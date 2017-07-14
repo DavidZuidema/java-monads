@@ -1,8 +1,8 @@
 package com.davidzuidema.web.security;
 
 import static com.davidzuidema.web.Util.create;
-import static com.davidzuidema.web.monad.ResultMatchers.failedAndError;
-import static com.davidzuidema.web.monad.ResultMatchers.succeededAndValue;
+import static com.davidzuidema.web.monad.ResultMatchers.failedAndItsError;
+import static com.davidzuidema.web.monad.ResultMatchers.succeededAndItsValue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -36,7 +36,7 @@ public class PaymentRulesTest {
 
 		Result<ScheduleSinglePaymentRequest> result = PaymentRules.hasAccess(customer).apply(request);
 
-		assertThat(result, failedAndError(is("Unauthorized Action")));
+		assertThat(result, failedAndItsError(is("Unauthorized Action")));
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class PaymentRulesTest {
 
 		Result<ScheduleSinglePaymentRequest> result = PaymentRules.hasAccess(customer).apply(request);
 
-		assertThat(result, succeededAndValue(is(sameInstance(request))));
+		assertThat(result, succeededAndItsValue(is(sameInstance(request))));
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class PaymentRulesTest {
 
 		Result<ScheduleSinglePaymentRequest> result = PaymentRules.isAfterFreeze(request);
 
-		assertThat(result, failedAndError(is("Must schedule payments at least TWO days in advance")));
+		assertThat(result, failedAndItsError(is("Must schedule payments at least TWO days in advance")));
 	}
 
 	@Test
@@ -64,6 +64,6 @@ public class PaymentRulesTest {
 
 		Result<ScheduleSinglePaymentRequest> result = PaymentRules.isAfterFreeze(request);
 
-		assertThat(result, succeededAndValue(is(sameInstance(request))));
+		assertThat(result, succeededAndItsValue(is(sameInstance(request))));
 	}
 }

@@ -5,7 +5,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 public class ResultMatchers {
-	public static <A> Matcher<Result<A>> succeededAndValue(Matcher<A> successValueMatcher) {
+	public static <A> Matcher<Result<A>> succeededAndItsValue(Matcher<A> successValueMatcher) {
 		return new TypeSafeDiagnosingMatcher<Result<A>>() {
 
 			@Override
@@ -39,7 +39,7 @@ public class ResultMatchers {
 		};
 	}
 
-	public static <A> Matcher<Result<A>> failedAndError(Matcher<String> errorMessageMatcher) {
+	public static <A> Matcher<Result<A>> failedAndItsError(Matcher<String> errorMessageMatcher) {
 		return new TypeSafeDiagnosingMatcher<Result<A>>() {
 
 			@Override

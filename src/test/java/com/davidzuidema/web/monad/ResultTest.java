@@ -1,5 +1,7 @@
 package com.davidzuidema.web.monad;
 
+import static com.davidzuidema.web.monad.ResultMatchers.failedAndItsError;
+import static com.davidzuidema.web.monad.ResultMatchers.succeededAndItsValue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -31,6 +33,12 @@ public class ResultTest {
 	Function<Integer, Result<Integer>> addOneM = i -> Result.of(i + 1);
 	Function<Integer, Result<Integer>> addThreeM = i -> Result.of(i + 3);
 	Function<Result<Integer>, Result<Integer>> id = Function.identity();
+
+	/*
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Monad and Functor Law Tests
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 */
 
 	/**
 	 * Functor Identity Law
@@ -105,6 +113,12 @@ public class ResultTest {
 		assertThat(chainResult, is(equalTo(applyThenChainResult)));
 	}
 
+	/*
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Result API Unit Tests
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 */
+
 	@Test
 	public void succeeded_withValue_returnsTrue() throws Exception {
 		assertThat(Result.of(1).succeeded(), is(true));
@@ -127,7 +141,7 @@ public class ResultTest {
 
 	@Test
 	public void extract_withValue_returnsValue() throws Exception {
-		assertThat(Result.of(1).extract(), is(1));
+		assertThat(Result.success(1).extract(), is(1));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -142,57 +156,70 @@ public class ResultTest {
 
 	@Test(expected = IllegalStateException.class)
 	public void error_withValue_throwsException() throws Exception {
-		Result.of("Data Access Violation").error();
-
+		Result.success("Data Access Violation").error();
 	}
+
+	/*
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Composition Tests
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 */
 
 	@Test
 	public void flatMap_chainingSuccessfulOperations_appliesAllFunctions() throws Exception {
-		when(firstM.apply(1)).thenReturn(Result.of(2));
-		when(secondM.apply(2)).thenReturn(Result.of(3));
+		when(firstM.apply(1)).thenReturn(Result.success(2));
+		when(secondM.apply(2)).thenReturn(Result.success(3));
 
-		Result<Integer> end = Result.of(1).flatMap(firstM).flatMap(secondM);
+		Result<Integer> calculation = Result
+				.of(1)
+				.flatMap(firstM)
+				.flatMap(secondM);
 
 		verify(firstM).apply(1);
 		verify(secondM).apply(2);
-		assertThat(end.succeeded(), is(true));
-		assertThat(end.extract(), is(3));
+		assertThat(calculation, succeededAndItsValue(is(3)));
 	}
 
 	@Test
 	public void flatMap_chainingUpstreamFailingOperations_doesNotApplyDownstreamFunctions() throws Exception {
 		when(firstM.apply(1)).thenReturn(Result.error("problem"));
 
-		Result<Integer> end = Result.of(1).flatMap(firstM).flatMap(secondM);
+		Result<Integer> calculation = Result
+				.of(1)
+				.flatMap(firstM)
+				.flatMap(secondM);
 
 		verify(firstM).apply(1);
 		verifyZeroInteractions(secondM);
-		assertThat(end.failed(), is(true));
-		assertThat(end.error(), is("problem"));
+		assertThat(calculation, failedAndItsError(is("problem")));
 	}
 
 	@Test
 	public void map_chainingSuccessfulOperations_appliesAllFunctions() throws Exception {
-		when(firstM.apply(1)).thenReturn(Result.of(2));
+		when(firstM.apply(1)).thenReturn(Result.success(2));
 		when(second.apply(2)).thenReturn(3);
 
-		Result<Integer> end = Result.of(1).flatMap(firstM).map(second);
+		Result<Integer> calculation = Result
+				.of(1)
+				.flatMap(firstM)
+				.map(second);
 
 		verify(firstM).apply(1);
 		verify(second).apply(2);
-		assertThat(end.succeeded(), is(true));
-		assertThat(end.extract(), is(3));
+		assertThat(calculation, succeededAndItsValue(is(3)));
 	}
 
 	@Test
 	public void map_chainingUpstreamFailingOperations_doesNotApplyDownstreamFunctions() throws Exception {
 		when(firstM.apply(1)).thenReturn(Result.error("problem"));
 
-		Result<Integer> end = Result.of(1).flatMap(firstM).map(second);
+		Result<Integer> calculation = Result
+				.of(1)
+				.flatMap(firstM)
+				.map(second);
 
 		verify(firstM).apply(1);
 		verifyZeroInteractions(second);
-		assertThat(end.failed(), is(true));
-		assertThat(end.error(), is("problem"));
+		assertThat(calculation, failedAndItsError(is("problem")));
 	}
 }
